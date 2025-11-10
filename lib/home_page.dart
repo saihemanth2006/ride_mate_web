@@ -28,12 +28,10 @@ class MyHome extends StatefulWidget {
   State<MyHome> createState() => _MyHomeState();
 }
 
-Future<void> signOut() async {
-  await FirebaseAuth.instance.signOut();
-}
-
-
 class _MyHomeState extends State<MyHome> {
+  Future<void> signOut() async {
+    await FirebaseAuth.instance.signOut();
+  }
   int _selectedIndex = 0;
 
   // Move _buildRideOption above build method
@@ -156,7 +154,35 @@ class _MyHomeState extends State<MyHome> {
           verifiedOnly: false,
         );
 
-    return Scaffold(
+    return PopScope(
+      canPop: false, // Prevent automatic pop
+      onPopInvoked: (didPop) async {
+        if (didPop) return;
+        
+        // Show confirmation dialog when back button is pressed
+        final bool shouldExit = await showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Exit App'),
+            content: const Text('Do you want to exit the app?'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: const Text('Cancel'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(true),
+                child: const Text('Exit'),
+              ),
+            ],
+          ),
+        ) ?? false;
+        
+        if (shouldExit) {
+          Navigator.of(context).pop();
+        }
+      },
+      child: Scaffold(
       backgroundColor: Colors.white,
       drawer: AppDrawer(
         userName: widget.userName,
@@ -275,9 +301,8 @@ body: Builder(
           BottomNavigationBarItem(icon: Icon(Icons.history), label: 'My Rides'),
         ],
       ),
-      );
-    
-    
+      ), // Close Scaffold
+    ); // Close PopScope
   }
 }
 

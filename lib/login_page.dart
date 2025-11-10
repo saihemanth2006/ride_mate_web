@@ -25,8 +25,6 @@ class _LoginPageState extends State<LoginPage> {
     FontAwesomeIcons.facebook,
     FontAwesomeIcons.microsoft,
   ];
-
-
   Future<Map<String, String>> getUserDetails(String uid) async {
     try {
       final doc =
